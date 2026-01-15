@@ -9,9 +9,10 @@ interface TaskListProps {
   tasks: Task[];
   onComplete: (id: string) => void;
   onUpdateNotes: (id: string, notes: string) => void;
+  onUpdateTitle: (id: string, title: string) => void;
 }
 
-export function TaskList({ tasks, onComplete, onUpdateNotes }: TaskListProps) {
+export function TaskList({ tasks, onComplete, onUpdateNotes, onUpdateTitle }: TaskListProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   if (tasks.length === 0) {
@@ -66,6 +67,7 @@ export function TaskList({ tasks, onComplete, onUpdateNotes }: TaskListProps) {
           onClose={() => setSelectedTask(null)}
           onComplete={handleTaskComplete}
           onUpdateNotes={onUpdateNotes}
+          onUpdateTitle={onUpdateTitle}
         />
       )}
     </>

@@ -23,6 +23,7 @@ export default function Home() {
     addTask,
     completeTask,
     updateTaskNotes,
+    updateTaskTitle,
     completeOnboarding,
   } = useStore();
 
@@ -87,7 +88,7 @@ export default function Home() {
 
       {/* Main content */}
       <div className="flex-1 px-6 py-2 overflow-y-auto">
-        <TaskList tasks={tasks} onComplete={completeTask} onUpdateNotes={updateTaskNotes} />
+        <TaskList tasks={tasks} onComplete={completeTask} onUpdateNotes={updateTaskNotes} onUpdateTitle={updateTaskTitle} />
       </div>
 
       {/* Task count indicator */}

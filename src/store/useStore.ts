@@ -305,6 +305,17 @@ export function useStore() {
     );
   }, []);
 
+  // Update task title
+  const updateTaskTitle = useCallback((taskId: string, title: string) => {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) return; // Don't allow empty titles
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, title: trimmedTitle } : t
+      )
+    );
+  }, []);
+
   // Mark onboarding as seen
   const completeOnboarding = useCallback(() => {
     setSettings((prev) => ({ ...prev, hasSeenOnboarding: true }));
@@ -363,6 +374,7 @@ export function useStore() {
     completeTask,
     deleteTask,
     updateTaskNotes,
+    updateTaskTitle,
     completeOnboarding,
     showOnboarding,
     updateNotificationTime,

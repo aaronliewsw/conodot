@@ -10,15 +10,18 @@ interface TaskDetailProps {
   onClose: () => void;
   onComplete: (id: string) => void;
   onUpdateNotes: (id: string, notes: string) => void;
+  onUpdateTitle: (id: string, title: string) => void;
 }
 
-export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes }: TaskDetailProps) {
+export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, onUpdateTitle }: TaskDetailProps) {
+  const [title, setTitle] = useState(task.title);
   const [notes, setNotes] = useState(task.notes || "");
 
-  // Sync notes when task changes
+  // Sync when task changes
   useEffect(() => {
+    setTitle(task.title);
     setNotes(task.notes || "");
-  }, [task.notes, task.id]);
+  }, [task.title, task.notes, task.id]);
 
   if (!isOpen) return null;
 
@@ -35,11 +38,24 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes }:
   };
 
   const handleClose = () => {
+    // Save title before closing
+    if (title.trim() && title !== task.title) {
+      onUpdateTitle(task.id, title);
+    }
     // Save notes before closing
     if (notes !== (task.notes || "")) {
       onUpdateNotes(task.id, notes);
     }
     onClose();
+  };
+
+  const handleTitleBlur = () => {
+    if (title.trim() && title !== task.title) {
+      onUpdateTitle(task.id, title);
+    } else if (!title.trim()) {
+      // Revert to original if empty
+      setTitle(task.title);
+    }
   };
 
   const handleNotesBlur = () => {
@@ -89,12 +105,12 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes }:
 
         {/* Content */}
         <div className="p-4 space-y-4 overflow-hidden">
-          {/* Task with checkbox */}
+          {/* Task with checkbox and editable title */}
           <div className="flex items-start gap-3 min-w-0">
             <button
               onClick={handleComplete}
               disabled={task.isCompleted}
-              className={`mt-1 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
+              className={`mt-2 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
                 task.isCompleted
                   ? "bg-chestnut border-chestnut"
                   : task.type === "signal"
@@ -119,13 +135,16 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes }:
                 </svg>
               )}
             </button>
-            <p
-              className={`text-base leading-relaxed break-all min-w-0 ${
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={handleTitleBlur}
+              className={`flex-1 min-w-0 bg-transparent text-base leading-relaxed focus:outline-none ${
                 task.isCompleted ? "text-taupe line-through" : "text-chestnut"
               }`}
-            >
-              {task.title}
-            </p>
+              disabled={task.isCompleted}
+            />
           </div>
 
           {/* Editable Notes */}
