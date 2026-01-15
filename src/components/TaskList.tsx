@@ -19,7 +19,9 @@ export function TaskList({ tasks, onComplete, onUpdateNotes, onUpdateTitle, isPl
   if (tasks.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-center">
-        <p className="text-taupe text-lg">No tasks for today</p>
+        <p className="text-taupe text-lg">
+          {isPlanningMode ? "No tasks for tomorrow" : "No tasks for today"}
+        </p>
         <p className="text-silver text-sm mt-2">
           Add up to 5 tasks to get started
         </p>
