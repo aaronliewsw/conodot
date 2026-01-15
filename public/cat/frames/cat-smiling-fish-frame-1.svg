@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Cat Smiling + Fish - Frame 1 -->
+  
+  <!-- bg (transparent) -->
+  <g id="bg"></g>
+  
+  <!-- cat-tail -->
+  <g id="cat-tail">
+    <path d="M185 138 Q222 125 228 85 Q230 55 215 50" fill="#F7DCD6" stroke="#E8CCC6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- cat-body -->
+  <g id="cat-body">
+    <ellipse cx="130" cy="165" rx="58" ry="52" fill="#F7DCD6"/>
+    <ellipse cx="130" cy="165" rx="58" ry="52" fill="none" stroke="#E8CCC6" stroke-width="2"/>
+  </g>
+  
+  <!-- cat-paws -->
+  <g id="cat-paws">
+    <ellipse cx="102" cy="200" rx="16" ry="10" fill="#F7DCD6" stroke="#E8CCC6" stroke-width="2"/>
+    <ellipse cx="158" cy="200" rx="16" ry="10" fill="#F7DCD6" stroke="#E8CCC6" stroke-width="2"/>
+  </g>
+  
+  <!-- cat-ears -->
+  <g id="cat-ears">
+    <!-- Left ear outer -->
+    <path d="M88 81 Q80 49 95 54 Q105 51 102 81" fill="#F7DCD6" stroke="#E8CCC6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Left ear inner -->
+    <path d="M91 74 Q88 59 95 61 Q100 59 98 74" fill="#F5C869"/>
+    <!-- Right ear outer -->
+    <path d="M154 81 Q151 51 161 54 Q176 49 168 81" fill="#F7DCD6" stroke="#E8CCC6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Right ear inner -->
+    <path d="M158 74 Q156 59 161 61 Q168 59 165 74" fill="#F5C869"/>
+  </g>
+  
+  <!-- cat-face-base -->
+  <g id="cat-face-base">
+    <ellipse cx="130" cy="104" rx="48" ry="44" fill="#F7DCD6"/>
+    <ellipse cx="130" cy="104" rx="48" ry="44" fill="none" stroke="#E8CCC6" stroke-width="2"/>
+    
+  </g>
+  
+  <!-- cat-eyes -->
+  <g id="cat-eyes">
+    <circle cx="112" cy="98" r="4" fill="#2B2B2B"/>
+    <circle cx="148" cy="98" r="4" fill="#2B2B2B"/>
+  </g>
+  
+  <!-- cat-nose -->
+  <g id="cat-nose">
+    <ellipse cx="130" cy="113" rx="3" ry="2" fill="#E8AFA8"/>
+  </g>
+  
+  <!-- cat-mouth -->
+  <g id="cat-mouth">
+    <path d="M130 115 L130 120" fill="none" stroke="#D4A59E" stroke-width="2" stroke-linecap="round"/>
+    <path d="M122 123 Q130 129 138 123" fill="none" stroke="#D4A59E" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- cat-whiskers -->
+  <g id="cat-whiskers">
+    <line x1="92" y1="110" x2="74" y2="106" stroke="#D4A59E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="92" y1="116" x2="72" y2="118" stroke="#D4A59E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="168" y1="110" x2="186" y2="106" stroke="#D4A59E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="168" y1="116" x2="188" y2="118" stroke="#D4A59E" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- food -->
+  <g id="food-fish" transform="translate(44, -13) scale(0.7)">
+    <ellipse cx="128" cy="128" rx="28" ry="15" fill="#CFE3E7" stroke="#AFC9CF" stroke-width="2"/>
+    <path d="M156 128 L172 116 L172 140 Z" fill="#CFE3E7" stroke="#AFC9CF" stroke-width="2"/>
+    <circle cx="108" cy="126" r="2.5" fill="#2B2B2B"/>
+    <path d="M125 113 Q129 105 136 113" fill="#AFC9CF" stroke="#AFC9CF" stroke-width="1"/>
+  </g>
+  
+  <!-- fx -->
+  <g id="fx">
+    
+  </g>
+</svg>

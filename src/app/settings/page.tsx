@@ -17,8 +17,8 @@ export default function SettingsPage() {
     resetAll,
   } = useStore();
 
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [clearConfirmStep, setClearConfirmStep] = useState(0); // 0: none, 1: first confirm, 2: second confirm
+  const [resetConfirmStep, setResetConfirmStep] = useState(0); // 0: none, 1: first confirm, 2: second confirm
 
   if (!isLoaded) {
     return (
@@ -30,12 +30,12 @@ export default function SettingsPage() {
 
   const handleClearArchive = () => {
     clearArchive();
-    setShowClearConfirm(false);
+    setClearConfirmStep(0);
   };
 
   const handleResetAll = () => {
     resetAll();
-    setShowResetConfirm(false);
+    setResetConfirmStep(0);
     router.push("/");
   };
 
@@ -120,61 +120,105 @@ export default function SettingsPage() {
           </h2>
 
           {/* Clear archive */}
-          {!showClearConfirm ? (
+          {clearConfirmStep === 0 && (
             <button
-              onClick={() => setShowClearConfirm(true)}
+              onClick={() => setClearConfirmStep(1)}
               className="w-full py-2 px-4 text-sm text-burnt-rose border border-burnt-rose/30 rounded hover:bg-burnt-rose/10 transition-colors mb-3"
             >
               Clear Archive
             </button>
-          ) : (
+          )}
+          {clearConfirmStep === 1 && (
             <div className="mb-3 p-3 bg-burnt-rose/10 rounded">
               <p className="text-sm text-burnt-rose mb-3">
                 This will permanently delete all archived tasks. Continue?
               </p>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setShowClearConfirm(false)}
-                  className="flex-1 py-2 text-sm text-taupe border border-silver/30 rounded hover:bg-silver/10"
+                  onClick={() => setClearConfirmStep(2)}
+                  className="flex-1 py-2 text-sm text-dust-grey bg-burnt-rose rounded hover:bg-chestnut"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setClearConfirmStep(0)}
+                  className="flex-1 py-2 text-sm text-chestnut border border-chestnut/30 rounded hover:bg-chestnut/10"
                 >
                   Cancel
                 </button>
+              </div>
+            </div>
+          )}
+          {clearConfirmStep === 2 && (
+            <div className="mb-3 p-3 bg-burnt-rose/10 rounded">
+              <p className="text-sm text-burnt-rose mb-3 font-medium">
+                Are you sure? This cannot be undone.
+              </p>
+              <div className="flex gap-2">
                 <button
                   onClick={handleClearArchive}
                   className="flex-1 py-2 text-sm text-dust-grey bg-burnt-rose rounded hover:bg-chestnut"
                 >
-                  Delete
+                  Yes, Delete
+                </button>
+                <button
+                  onClick={() => setClearConfirmStep(0)}
+                  className="flex-1 py-2 text-sm text-chestnut border border-chestnut/30 rounded hover:bg-chestnut/10"
+                >
+                  Cancel
                 </button>
               </div>
             </div>
           )}
 
           {/* Reset all */}
-          {!showResetConfirm ? (
+          {resetConfirmStep === 0 && (
             <button
-              onClick={() => setShowResetConfirm(true)}
+              onClick={() => setResetConfirmStep(1)}
               className="w-full py-2 px-4 text-sm text-dust-grey bg-burnt-rose rounded hover:bg-chestnut transition-colors"
             >
               Reset All Progress
             </button>
-          ) : (
+          )}
+          {resetConfirmStep === 1 && (
             <div className="p-3 bg-burnt-rose/10 rounded">
               <p className="text-sm text-burnt-rose mb-3">
                 This will permanently delete ALL data: tasks, archive, XP,
-                level, and streak. This cannot be undone.
+                level, and streak. Continue?
               </p>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setShowResetConfirm(false)}
-                  className="flex-1 py-2 text-sm text-taupe border border-silver/30 rounded hover:bg-silver/10"
+                  onClick={() => setResetConfirmStep(2)}
+                  className="flex-1 py-2 text-sm text-dust-grey bg-burnt-rose rounded hover:bg-chestnut"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setResetConfirmStep(0)}
+                  className="flex-1 py-2 text-sm text-chestnut border border-chestnut/30 rounded hover:bg-chestnut/10"
                 >
                   Cancel
                 </button>
+              </div>
+            </div>
+          )}
+          {resetConfirmStep === 2 && (
+            <div className="p-3 bg-burnt-rose/10 rounded">
+              <p className="text-sm text-burnt-rose mb-3 font-medium">
+                Are you absolutely sure? This cannot be undone.
+              </p>
+              <div className="flex gap-2">
                 <button
                   onClick={handleResetAll}
                   className="flex-1 py-2 text-sm text-dust-grey bg-burnt-rose rounded hover:bg-chestnut"
                 >
-                  Reset Everything
+                  Yes, Reset
+                </button>
+                <button
+                  onClick={() => setResetConfirmStep(0)}
+                  className="flex-1 py-2 text-sm text-chestnut border border-chestnut/30 rounded hover:bg-chestnut/10"
+                >
+                  Cancel
                 </button>
               </div>
             </div>

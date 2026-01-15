@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Food: Fish - Simple fish silhouette -->
+  
+  <g id="food-fish">
+    <!-- Fish body -->
+    <ellipse cx="128" cy="128" rx="32" ry="18" fill="#CFE3E7" stroke="#AFC9CF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Fish tail -->
+    <path d="M160 128 L180 112 L180 144 Z" fill="#CFE3E7" stroke="#AFC9CF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Fish eye -->
+    <circle cx="105" cy="125" r="3" fill="#2B2B2B"/>
+    <!-- Fish fin (top) -->
+    <path d="M125 110 Q130 100 138 110" fill="#AFC9CF" stroke="#AFC9CF" stroke-width="1" stroke-linecap="round"/>
+  </g>
+</svg>

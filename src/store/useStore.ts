@@ -8,6 +8,13 @@ import {
   UserSettings,
   TASK_LIMITS,
   XP_VALUES,
+  PetState,
+  Inventory,
+  MoodState,
+  FoodType,
+  MOOD_STATES,
+  FOOD_CONFIG,
+  PET_CONFIG,
 } from "@/types";
 import { generateId, getTodayDateString, isYesterday } from "@/lib/utils";
 
@@ -17,6 +24,8 @@ const STORAGE_KEYS = {
   progress: "conodot_progress",
   settings: "conodot_settings",
   lastActiveDate: "conodot_last_active_date",
+  pet: "conodot_pet",
+  inventory: "conodot_inventory",
 } as const;
 
 function getFromStorage<T>(key: string, defaultValue: T): T {
@@ -48,11 +57,28 @@ const defaultSettings: UserSettings = {
   hasSeenOnboarding: false,
 };
 
+const createDefaultPet = (): PetState => ({
+  name: PET_CONFIG.defaultName,
+  mood: PET_CONFIG.initialMood,
+  lastMoodUpdate: new Date().toISOString(),
+  feedingsToday: 0,
+  lastFeedingDate: getTodayDateString(),
+  createdAt: new Date().toISOString(),
+});
+
+const defaultInventory: Inventory = {
+  kibble: 0,
+  fish: 0,
+  steak: 0,
+};
+
 export function useStore() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [archive, setArchive] = useState<Task[]>([]);
   const [progress, setProgress] = useState<Progress>(defaultProgress);
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
+  const [pet, setPet] = useState<PetState>(createDefaultPet);
+  const [inventory, setInventory] = useState<Inventory>(defaultInventory);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage on mount
@@ -103,6 +129,35 @@ export function useStore() {
     }
 
     setSettings(storedSettings);
+
+    // Load pet state and apply mood decay
+    const storedPet = getFromStorage<PetState>(STORAGE_KEYS.pet, createDefaultPet());
+    const storedInventory = getFromStorage<Inventory>(STORAGE_KEYS.inventory, defaultInventory);
+
+    // Reset feedingsToday if it's a new day
+    let updatedPet = storedPet;
+    if (storedPet.lastFeedingDate !== today) {
+      updatedPet = { ...storedPet, feedingsToday: 0, lastFeedingDate: today };
+    }
+
+    // Apply mood decay based on time elapsed
+    const hoursSinceUpdate = (Date.now() - new Date(updatedPet.lastMoodUpdate).getTime()) / (1000 * 60 * 60);
+    const moodDecaySteps = Math.floor(hoursSinceUpdate / PET_CONFIG.moodDecayHours);
+
+    if (moodDecaySteps > 0) {
+      const currentMoodIndex = MOOD_STATES.indexOf(updatedPet.mood);
+      const newMoodIndex = Math.max(0, currentMoodIndex - moodDecaySteps);
+      updatedPet = {
+        ...updatedPet,
+        mood: MOOD_STATES[newMoodIndex],
+        lastMoodUpdate: new Date().toISOString(),
+      };
+    }
+
+    setPet(updatedPet);
+    setInventory(storedInventory);
+    setToStorage(STORAGE_KEYS.pet, updatedPet);
+
     setToStorage(STORAGE_KEYS.lastActiveDate, today);
     setIsLoaded(true);
   }, []);
@@ -134,6 +189,20 @@ export function useStore() {
       setToStorage(STORAGE_KEYS.archive, archive);
     }
   }, [archive, isLoaded]);
+
+  // Persist pet
+  useEffect(() => {
+    if (isLoaded) {
+      setToStorage(STORAGE_KEYS.pet, pet);
+    }
+  }, [pet, isLoaded]);
+
+  // Persist inventory
+  useEffect(() => {
+    if (isLoaded) {
+      setToStorage(STORAGE_KEYS.inventory, inventory);
+    }
+  }, [inventory, isLoaded]);
 
   // Task counts
   const signalTasks = tasks.filter((t) => t.type === "signal");
@@ -343,11 +412,110 @@ export function useStore() {
     setArchive([]);
     setProgress(defaultProgress);
     setSettings({ hasSeenOnboarding: false });
+    setPet(createDefaultPet());
+    setInventory(defaultInventory);
     setToStorage(STORAGE_KEYS.tasks, []);
     setToStorage(STORAGE_KEYS.archive, []);
     setToStorage(STORAGE_KEYS.progress, defaultProgress);
     setToStorage(STORAGE_KEYS.settings, { hasSeenOnboarding: false });
+    setToStorage(STORAGE_KEYS.pet, createDefaultPet());
+    setToStorage(STORAGE_KEYS.inventory, defaultInventory);
   }, []);
+
+  // ============================================
+  // Pet System Computed Values
+  // ============================================
+
+  // Remaining feedings today
+  const remainingFeedings = PET_CONFIG.maxFeedingsPerDay - pet.feedingsToday;
+
+  // Check if can feed pet today
+  const canFeedPet = remainingFeedings > 0;
+
+  // Check if can afford food
+  const canAffordFood = useCallback(
+    (food: FoodType): boolean => {
+      return progress.currentXP >= FOOD_CONFIG[food].xpCost;
+    },
+    [progress.currentXP]
+  );
+
+  // ============================================
+  // Pet System Actions
+  // ============================================
+
+  // Update pet name
+  const updatePetName = useCallback((name: string) => {
+    const trimmedName = name.trim();
+    if (!trimmedName) return;
+    setPet((prev) => ({ ...prev, name: trimmedName }));
+  }, []);
+
+  // Purchase food with XP
+  const purchaseFood = useCallback(
+    (food: FoodType): boolean => {
+      const cost = FOOD_CONFIG[food].xpCost;
+      if (progress.currentXP < cost) {
+        return false;
+      }
+
+      // Deduct XP but keep level (level never drops from spending)
+      setProgress((prev) => ({
+        ...prev,
+        currentXP: prev.currentXP - cost,
+        // Level stays the same - never decreases from spending XP
+      }));
+
+      // Add to inventory
+      setInventory((prev) => ({
+        ...prev,
+        [food]: prev[food] + 1,
+      }));
+
+      return true;
+    },
+    [progress.currentXP]
+  );
+
+  // Feed pet from inventory
+  const feedPet = useCallback(
+    (food: FoodType): boolean => {
+      // Check if we have the food in inventory
+      if (inventory[food] <= 0) {
+        return false;
+      }
+
+      // Check if we can feed today
+      if (pet.feedingsToday >= PET_CONFIG.maxFeedingsPerDay) {
+        return false;
+      }
+
+      // Remove from inventory
+      setInventory((prev) => ({
+        ...prev,
+        [food]: prev[food] - 1,
+      }));
+
+      // Update pet mood and feeding count
+      setPet((prev) => {
+        const currentMoodIndex = MOOD_STATES.indexOf(prev.mood);
+        const moodBoost = FOOD_CONFIG[food].moodBoost;
+        // Cap at max mood (loved = index 4)
+        const newMoodIndex = Math.min(MOOD_STATES.length - 1, currentMoodIndex + moodBoost);
+
+        return {
+          ...prev,
+          mood: MOOD_STATES[newMoodIndex],
+          lastMoodUpdate: new Date().toISOString(),
+          feedingsToday: prev.feedingsToday + 1,
+          lastFeedingDate: getTodayDateString(),
+        };
+      });
+
+      return true;
+    },
+    [inventory, pet.feedingsToday]
+  );
 
   return {
     // State
@@ -355,6 +523,8 @@ export function useStore() {
     archive,
     progress,
     settings,
+    pet,
+    inventory,
     isLoaded,
 
     // Computed
@@ -365,9 +535,14 @@ export function useStore() {
     allTasksComplete,
     dailyGoalComplete,
 
+    // Pet Computed
+    remainingFeedings,
+    canFeedPet,
+
     // Validation
     canAddTask,
     isValidTaskList,
+    canAffordFood,
 
     // Actions
     addTask,
@@ -380,5 +555,10 @@ export function useStore() {
     updateNotificationTime,
     clearArchive,
     resetAll,
+
+    // Pet Actions
+    updatePetName,
+    purchaseFood,
+    feedPet,
   };
 }

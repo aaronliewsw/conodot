@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Food: Steak - Rounded slab with fat strip -->
+  
+  <g id="food-steak">
+    <!-- Steak body -->
+    <path d="M95 110 Q90 128 100 145 Q115 160 140 158 Q165 155 170 135 Q175 115 165 100 Q150 90 125 92 Q100 95 95 110 Z" fill="#E28B86" stroke="#C26B66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Fat strip -->
+    <path d="M100 115 Q98 128 105 140 Q110 148 120 150" fill="none" stroke="#F3D2CF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Food: Kibble - Cluster of 5 round pellets -->
+  
+  <g id="food-kibble">
+    <!-- Pellet 1 (center) -->
+    <ellipse cx="128" cy="128" rx="12" ry="10" fill="#C98F5A" stroke="#8B6233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Pellet 2 (top left) -->
+    <ellipse cx="112" cy="118" rx="11" ry="9" fill="#C98F5A" stroke="#8B6233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Pellet 3 (top right) -->
+    <ellipse cx="144" cy="116" rx="10" ry="9" fill="#C98F5A" stroke="#8B6233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Pellet 4 (bottom left) -->
+    <ellipse cx="116" cy="140" rx="11" ry="9" fill="#C98F5A" stroke="#8B6233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Pellet 5 (bottom right) -->
+    <ellipse cx="140" cy="142" rx="10" ry="8" fill="#C98F5A" stroke="#8B6233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

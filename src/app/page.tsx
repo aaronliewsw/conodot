@@ -118,9 +118,12 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="px-6 py-4 flex items-center justify-between text-xs text-taupe border-t border-silver/20">
+      <footer className="px-6 py-4 flex items-center justify-center gap-6 text-xs text-taupe border-t border-silver/20">
         <Link href="/archive" className="hover:text-chestnut transition-colors">
           Archive
+        </Link>
+        <Link href="/cat" className="hover:text-chestnut transition-colors">
+          Cat
         </Link>
         <Link href="/settings" className="hover:text-chestnut transition-colors">
           Settings

@@ -89,7 +89,7 @@ const steps = [
   {
     id: "limits",
     title: "Daily Limits",
-    subtitle: "Constraints breed focus",
+    subtitle: "Focus on what matters",
     content: (
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -127,40 +127,42 @@ const steps = [
             Your task here
           </div>
         </div>
-        <ul className="text-sm text-silver space-y-2">
-          <li className="flex items-start gap-2">
-            <span className="text-chestnut">1.</span>
-            <span>Type your task</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-chestnut">2.</span>
-            <span>Swipe right for Signal, left for Noise</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-chestnut">3.</span>
-            <span>Complete tasks to earn XP</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-chestnut">4.</span>
-            <span>Finish all tasks to maintain your streak</span>
-          </li>
-        </ul>
+        <div className="flex justify-center">
+          <ul className="text-sm text-silver space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">1.</span>
+              <span>Type your task</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">2.</span>
+              <span>Swipe right for Signal, left for Noise</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">3.</span>
+              <span>Complete tasks to earn XP</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">4.</span>
+              <span>Finish all tasks to maintain your streak</span>
+            </li>
+          </ul>
+        </div>
       </div>
     ),
   },
   {
     id: "ready",
     title: "Ready to Focus",
-    subtitle: "Your day starts now",
+    subtitle: "Signal tasks build your streak",
     content: (
       <div className="space-y-4 text-center">
         <div className="text-4xl">🎯</div>
         <p className="text-taupe">
-          Complete all tasks before midnight to build your streak.
+          Complete all Signal tasks before midnight to build your streak.
         </p>
         <p className="text-sm text-silver">
-          Unfinished tasks reset your streak to zero.<br />
-          No backlog. No excuses. Just daily execution.
+          Unfinished Signal tasks reset your streak to zero.<br />
+          Noise tasks don&apos;t affect your streak.
         </p>
       </div>
     ),
