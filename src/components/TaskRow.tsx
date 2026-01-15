@@ -54,8 +54,8 @@ export function TaskRow({ task, onComplete, onClick }: TaskRowProps) {
 
   return (
     <div
-      className={`flex items-center gap-4 py-4 px-2 border-b border-silver/20 transition-all duration-300 ${
-        task.isCompleted ? "opacity-50" : ""
+      className={`flex items-center gap-4 py-4 px-3 -mx-1 rounded-lg border-b border-silver/20 transition-all duration-200 ${
+        task.isCompleted ? "opacity-50" : "hover:shadow-md hover:bg-silver/5 hover:-translate-y-0.5"
       }`}
     >
       {/* Checkbox */}
