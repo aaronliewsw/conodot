@@ -227,7 +227,7 @@ export function AddTask({
       {/* Instructions */}
       <p className="text-xs text-taupe text-center">
         {title.trim()
-          ? "Swipe left → Noise | Swipe right → Signal"
+          ? "← Noise | Signal →"
           : "Type your task first"
         }
       </p>
