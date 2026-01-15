@@ -72,9 +72,9 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, o
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6"
       onClick={handleBackdropClick}
     >
-      <div className="bg-dust-grey rounded-xl w-full max-w-md shadow-xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-dust-grey rounded-xl w-full max-w-md shadow-xl animate-in fade-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-silver/20">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-silver/20 flex-shrink-0">
           <span
             className={`text-xs font-medium uppercase tracking-wide ${
               task.type === "signal" ? "text-chestnut" : "text-taupe"
@@ -104,7 +104,7 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, o
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4 overflow-hidden">
+        <div className="p-4 space-y-4 overflow-y-auto flex-1">
           {/* Task with checkbox and editable title */}
           <div className="flex items-start gap-3 min-w-0">
             <button
