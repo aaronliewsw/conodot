@@ -39,11 +39,9 @@ export function XPBar({ currentXP, currentLevel, streak }: XPBarProps) {
       {/* Streak and Level */}
       <div className="flex items-center justify-between text-sm">
         <div className="flex items-center gap-1.5">
-          {streak > 0 && (
-            <span className="text-burnt-rose">🔥</span>
-          )}
+          <span className={streak > 0 ? "text-burnt-rose" : "text-silver"}>🔥</span>
           <span className={streak > 0 ? "text-chestnut font-medium" : "text-taupe"}>
-            {streak > 0 ? `${streak} day streak` : "Start your streak"}
+            {streak} day streak
           </span>
         </div>
         <div className="flex items-center gap-2">

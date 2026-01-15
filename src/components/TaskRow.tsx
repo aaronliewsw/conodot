@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Task } from "@/types";
 
 interface TaskRowProps {
@@ -11,6 +11,7 @@ interface TaskRowProps {
 export function TaskRow({ task, onComplete }: TaskRowProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [strikeWidth, setStrikeWidth] = useState(0);
+  const completingRef = useRef(false);
 
   const triggerHaptic = useCallback((pattern: number | number[]) => {
     if (navigator.vibrate) {
@@ -19,8 +20,9 @@ export function TaskRow({ task, onComplete }: TaskRowProps) {
   }, []);
 
   const handleComplete = () => {
-    if (task.isCompleted || isAnimating) return;
+    if (task.isCompleted || isAnimating || completingRef.current) return;
 
+    completingRef.current = true;
     setIsAnimating(true);
     triggerHaptic(10);
 

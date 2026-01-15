@@ -34,17 +34,17 @@ const steps = [
         <p className="text-taupe text-center">
           Signal tasks are your <span className="text-chestnut font-medium">meaningful, high-leverage work</span>.
         </p>
-        <ul className="text-sm text-silver space-y-2">
-          <li className="flex items-start gap-2">
-            <span className="text-chestnut mt-0.5">→</span>
+        <ul className="text-sm text-silver space-y-2 text-center">
+          <li className="flex items-center justify-center gap-2">
+            <span className="text-chestnut">→</span>
             <span>Work that moves the needle</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span className="text-chestnut mt-0.5">→</span>
+          <li className="flex items-center justify-center gap-2">
+            <span className="text-chestnut">→</span>
             <span>Tasks requiring deep focus</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span className="text-chestnut mt-0.5">→</span>
+          <li className="flex items-center justify-center gap-2">
+            <span className="text-chestnut">→</span>
             <span>Projects that create real value</span>
           </li>
         </ul>
@@ -66,17 +66,17 @@ const steps = [
         <p className="text-taupe text-center">
           Noise tasks are <span className="text-taupe font-medium">low-value but sometimes necessary</span>.
         </p>
-        <ul className="text-sm text-silver space-y-2">
-          <li className="flex items-start gap-2">
-            <span className="text-taupe mt-0.5">→</span>
+        <ul className="text-sm text-silver space-y-2 text-center">
+          <li className="flex items-center justify-center gap-2">
+            <span className="text-taupe">→</span>
             <span>Admin work and errands</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span className="text-taupe mt-0.5">→</span>
+          <li className="flex items-center justify-center gap-2">
+            <span className="text-taupe">→</span>
             <span>Routine maintenance tasks</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span className="text-taupe mt-0.5">→</span>
+          <li className="flex items-center justify-center gap-2">
+            <span className="text-taupe">→</span>
             <span>Things that must be done, but don&apos;t create value</span>
           </li>
         </ul>

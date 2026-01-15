@@ -34,7 +34,7 @@ export default function ArchivePage() {
   );
 
   return (
-    <main className="min-h-screen bg-dust-grey flex flex-col">
+    <main className="min-h-screen bg-dust-grey flex flex-col max-w-lg mx-auto">
       {/* Header */}
       <header className="px-6 py-4">
         <Logo onClick={() => router.push("/")} />

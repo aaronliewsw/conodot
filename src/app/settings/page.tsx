@@ -12,6 +12,7 @@ export default function SettingsPage() {
     progress,
     isLoaded,
     updateNotificationTime,
+    showOnboarding,
     clearArchive,
     resetAll,
   } = useStore();
@@ -39,7 +40,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-dust-grey flex flex-col">
+    <main className="min-h-screen bg-dust-grey flex flex-col max-w-lg mx-auto">
       {/* Header */}
       <header className="px-6 py-4">
         <Logo onClick={() => router.push("/")} />
@@ -91,6 +92,25 @@ export default function SettingsPage() {
             onChange={(e) => updateNotificationTime(e.target.value)}
             className="w-full px-4 py-2 bg-dust-grey border border-silver/30 rounded text-chestnut focus:outline-none focus:border-chestnut/50"
           />
+        </div>
+
+        {/* View Guide Again */}
+        <div className="p-4 bg-silver/10 rounded-lg">
+          <h2 className="text-sm font-medium text-taupe mb-3">
+            Introduction Guide
+          </h2>
+          <p className="text-xs text-silver mb-3">
+            View the walkthrough explaining Signal vs Noise tasks
+          </p>
+          <button
+            onClick={() => {
+              showOnboarding();
+              router.push("/");
+            }}
+            className="w-full py-2 px-4 text-sm text-chestnut border border-chestnut/30 rounded hover:bg-chestnut/10 transition-colors"
+          >
+            View Introduction Guide
+          </button>
         </div>
 
         {/* Danger zone */}

@@ -9,7 +9,7 @@ import {
   TASK_LIMITS,
   XP_VALUES,
 } from "@/types";
-import { generateId, getTodayDateString } from "@/lib/utils";
+import { generateId, getTodayDateString, isYesterday } from "@/lib/utils";
 
 const STORAGE_KEYS = {
   tasks: "conodot_tasks",
@@ -78,7 +78,6 @@ export function useStore() {
     if (lastActiveDate && lastActiveDate !== today) {
       // Day changed - archive completed tasks and reset
       const completedTasks = storedTasks.filter((t) => t.isCompleted);
-      const incompleteTasks = storedTasks.filter((t) => !t.isCompleted);
 
       // Archive completed tasks
       const newArchive = [...completedTasks, ...storedArchive];
@@ -89,14 +88,14 @@ export function useStore() {
       setTasks([]);
       setToStorage(STORAGE_KEYS.tasks, []);
 
-      // Check streak - if there were incomplete tasks, reset streak
-      if (incompleteTasks.length > 0) {
-        const newProgress = { ...storedProgress, streak: 0 };
-        setProgress(newProgress);
-        setToStorage(STORAGE_KEYS.progress, newProgress);
-      } else {
-        setProgress(storedProgress);
-      }
+      // Check streak - reset if lastCompletedDate is not yesterday
+      const lastCompleted = storedProgress.lastCompletedDate;
+      const streakBroken = !lastCompleted || !isYesterday(lastCompleted);
+      const newProgress = streakBroken
+        ? { ...storedProgress, streak: 0 }
+        : storedProgress;
+      setProgress(newProgress);
+      setToStorage(STORAGE_KEYS.progress, newProgress);
     } else {
       setTasks(storedTasks);
       setArchive(storedArchive);
@@ -137,11 +136,29 @@ export function useStore() {
   }, [archive, isLoaded]);
 
   // Task counts
-  const signalCount = tasks.filter((t) => t.type === "signal").length;
-  const noiseCount = tasks.filter((t) => t.type === "noise").length;
+  const signalTasks = tasks.filter((t) => t.type === "signal");
+  const noiseTasks = tasks.filter((t) => t.type === "noise");
+  const signalCount = signalTasks.length;
+  const noiseCount = noiseTasks.length;
   const totalCount = tasks.length;
   const completedCount = tasks.filter((t) => t.isCompleted).length;
-  const allComplete = totalCount > 0 && completedCount === totalCount;
+  const completedSignalCount = signalTasks.filter((t) => t.isCompleted).length;
+  const completedNoiseCount = noiseTasks.filter((t) => t.isCompleted).length;
+
+  // Streak eligibility: 3+ Signal tasks, all Signal tasks completed
+  const hasMinSignalTasks = signalCount >= TASK_LIMITS.minSignal;
+  const allSignalComplete = signalCount > 0 && completedSignalCount === signalCount;
+  const streakEligible = hasMinSignalTasks && allSignalComplete;
+
+  // All tasks complete: 4 Signal + 1 Noise, all done
+  const allTasksComplete =
+    signalCount === TASK_LIMITS.maxSignal &&
+    noiseCount === TASK_LIMITS.exactNoise &&
+    completedSignalCount === signalCount &&
+    completedNoiseCount === noiseCount;
+
+  // Daily goal complete: 3+ Signal tasks all completed (for banner)
+  const dailyGoalComplete = streakEligible;
 
   // Check if can add task
   const canAddTask = useCallback(
@@ -210,44 +227,68 @@ export function useStore() {
   // Complete task
   const completeTask = useCallback(
     (taskId: string) => {
-      setTasks((prev) => {
-        const task = prev.find((t) => t.id === taskId);
-        if (!task || task.isCompleted) return prev;
+      // Find task first to check if already completed
+      const task = tasks.find((t) => t.id === taskId);
+      if (!task || task.isCompleted) return;
 
-        // Update tasks
-        const updatedTasks = prev.map((t) =>
+      // Update tasks
+      setTasks((prev) =>
+        prev.map((t) =>
           t.id === taskId
             ? { ...t, isCompleted: true, completedAt: new Date().toISOString() }
             : t
-        );
+        )
+      );
 
-        // Award XP (using setTimeout to avoid state update during render)
-        const xpGain = task.type === "signal" ? XP_VALUES.signal : XP_VALUES.noise;
-        setTimeout(() => {
-          setProgress((prevProgress) => {
-            const newXP = prevProgress.currentXP + xpGain;
-            const newLevel = Math.floor(newXP / XP_VALUES.xpPerLevel) + 1;
+      // Award XP
+      const xpGain = task.type === "signal" ? XP_VALUES.signal : XP_VALUES.noise;
 
-            // Check if all tasks are now complete
-            const allNowComplete =
-              updatedTasks.length > 0 && updatedTasks.every((t) => t.isCompleted);
+      // Check streak eligibility:
+      // - Must have at least 3 Signal tasks
+      // - All Signal tasks must be completed (including this one if it's Signal)
+      const signalTasks = tasks.filter((t) => t.type === "signal");
+      const signalTasksAfterCompletion = signalTasks.map((t) =>
+        t.id === taskId ? { ...t, isCompleted: true } : t
+      );
+      const hasMinSignalTasks = signalTasks.length >= TASK_LIMITS.minSignal;
+      const allSignalComplete = signalTasksAfterCompletion.every((t) => t.isCompleted);
+      const completedDailyGoal = hasMinSignalTasks && allSignalComplete;
 
-            return {
-              ...prevProgress,
-              currentXP: newXP,
-              currentLevel: newLevel,
-              ...(allNowComplete && {
-                streak: prevProgress.streak + 1,
-                lastCompletedDate: getTodayDateString(),
-              }),
-            };
-          });
-        }, 0);
+      setProgress((prevProgress) => {
+        const newXP = prevProgress.currentXP + xpGain;
+        const newLevel = Math.floor(newXP / XP_VALUES.xpPerLevel) + 1;
+        const today = getTodayDateString();
 
-        return updatedTasks;
+        // If already completed today's goal, no streak change
+        if (prevProgress.lastCompletedDate === today) {
+          return {
+            ...prevProgress,
+            currentXP: newXP,
+            currentLevel: newLevel,
+          };
+        }
+
+        // If completed daily goal (3+ Signal tasks done)
+        if (completedDailyGoal) {
+          const wasYesterday = prevProgress.lastCompletedDate && isYesterday(prevProgress.lastCompletedDate);
+          return {
+            ...prevProgress,
+            currentXP: newXP,
+            currentLevel: newLevel,
+            // Only increment streak if yesterday was also completed (consecutive)
+            streak: wasYesterday ? prevProgress.streak + 1 : 0,
+            lastCompletedDate: today,
+          };
+        }
+
+        return {
+          ...prevProgress,
+          currentXP: newXP,
+          currentLevel: newLevel,
+        };
       });
     },
-    []
+    [tasks]
   );
 
   // Delete task (only uncompleted)
@@ -258,6 +299,11 @@ export function useStore() {
   // Mark onboarding as seen
   const completeOnboarding = useCallback(() => {
     setSettings((prev) => ({ ...prev, hasSeenOnboarding: true }));
+  }, []);
+
+  // Show onboarding again
+  const showOnboarding = useCallback(() => {
+    setSettings((prev) => ({ ...prev, hasSeenOnboarding: false }));
   }, []);
 
   // Update notification time
@@ -296,7 +342,8 @@ export function useStore() {
     noiseCount,
     totalCount,
     completedCount,
-    allComplete,
+    allTasksComplete,
+    dailyGoalComplete,
 
     // Validation
     canAddTask,
@@ -307,6 +354,7 @@ export function useStore() {
     completeTask,
     deleteTask,
     completeOnboarding,
+    showOnboarding,
     updateNotificationTime,
     clearArchive,
     resetAll,

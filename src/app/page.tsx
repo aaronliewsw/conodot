@@ -17,7 +17,8 @@ export default function Home() {
     signalCount,
     noiseCount,
     completedCount,
-    allComplete,
+    allTasksComplete,
+    dailyGoalComplete,
     canAddTask,
     addTask,
     completeTask,
@@ -65,12 +66,20 @@ export default function Home() {
         />
       </div>
 
-      {/* All Complete Banner */}
-      {allComplete && tasks.length > 0 && (
+      {/* Completion Banners */}
+      {allTasksComplete && (
         <div className="mx-6 mb-4 p-4 bg-chestnut/10 border border-chestnut/20 rounded-lg text-center">
           <p className="text-chestnut font-medium">All tasks complete!</p>
           <p className="text-sm text-taupe mt-1">
             You&apos;ve earned your rest. See you tomorrow.
+          </p>
+        </div>
+      )}
+      {!allTasksComplete && dailyGoalComplete && (
+        <div className="mx-6 mb-4 p-4 bg-chestnut/5 border border-chestnut/10 rounded-lg text-center">
+          <p className="text-chestnut font-medium">All Signal tasks complete!</p>
+          <p className="text-sm text-taupe mt-1">
+            Great focus today. Finish your Noise task if you have one.
           </p>
         </div>
       )}
