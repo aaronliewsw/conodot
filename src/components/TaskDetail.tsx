@@ -167,7 +167,19 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, o
               onBlur={handleNotesBlur}
               placeholder="Notes"
               rows={3}
-              className="w-full px-3 py-2 text-sm text-taupe bg-silver/10 border border-silver/20 rounded-lg placeholder:text-silver focus:outline-none focus:border-chestnut/30 resize-none"
+              className="w-full px-3 py-2 text-sm text-taupe bg-silver/10 border border-silver/20 rounded-lg placeholder:text-silver focus:outline-none focus:border-chestnut/30 resize-none overflow-hidden"
+              style={{ minHeight: '80px' }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.max(80, target.scrollHeight) + 'px';
+              }}
+              ref={(el) => {
+                if (el) {
+                  el.style.height = 'auto';
+                  el.style.height = Math.max(80, el.scrollHeight) + 'px';
+                }
+              }}
             />
           </div>
 
