@@ -166,7 +166,7 @@ const steps = [
           <ul className="text-sm text-silver space-y-2">
             <li className="flex items-start gap-2">
               <span className="text-chestnut">1.</span>
-              <span>Complete all 5 tasks for today</span>
+              <span>Complete your Signal tasks for today</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-chestnut">2.</span>

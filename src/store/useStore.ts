@@ -333,17 +333,14 @@ export function useStore() {
           : t
       );
 
-      // Check if ALL tasks will be complete after this (4 Signal + 1 Noise, all done)
+      // Check if daily goal will be complete (3+ Signal tasks, all completed)
       const signalTasksAfter = updatedTasks.filter((t) => t.type === "signal");
-      const noiseTasksAfter = updatedTasks.filter((t) => t.type === "noise");
-      const allTasksWillBeComplete =
-        signalTasksAfter.length === TASK_LIMITS.maxSignal &&
-        noiseTasksAfter.length === TASK_LIMITS.exactNoise &&
-        signalTasksAfter.every((t) => t.isCompleted) &&
-        noiseTasksAfter.every((t) => t.isCompleted);
+      const hasMinSignal = signalTasksAfter.length >= TASK_LIMITS.minSignal;
+      const allSignalWillBeComplete = signalTasksAfter.every((t) => t.isCompleted);
+      const dailyGoalWillBeComplete = hasMinSignal && allSignalWillBeComplete;
 
-      // If all tasks complete, archive them and clear the list
-      if (allTasksWillBeComplete) {
+      // If daily goal complete (3+ Signal done), archive tasks and enter planning mode
+      if (dailyGoalWillBeComplete) {
         setArchive((prev) => [...updatedTasks, ...prev]);
         setTasks([]);
         // Mark today as completed - user is now in planning mode
