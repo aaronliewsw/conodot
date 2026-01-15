@@ -10,14 +10,15 @@ interface TaskListProps {
   onComplete: (id: string) => void;
   onUpdateNotes: (id: string, notes: string) => void;
   onUpdateTitle: (id: string, title: string) => void;
+  isPlanningMode?: boolean;
 }
 
-export function TaskList({ tasks, onComplete, onUpdateNotes, onUpdateTitle }: TaskListProps) {
+export function TaskList({ tasks, onComplete, onUpdateNotes, onUpdateTitle, isPlanningMode = false }: TaskListProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   if (tasks.length === 0) {
     return (
-      <div className="py-12 text-center">
+      <div className="h-full flex flex-col items-center justify-center text-center">
         <p className="text-taupe text-lg">No tasks for today</p>
         <p className="text-silver text-sm mt-2">
           Add up to 5 tasks to get started
@@ -56,6 +57,7 @@ export function TaskList({ tasks, onComplete, onUpdateNotes, onUpdateTitle }: Ta
             task={task}
             onComplete={onComplete}
             onClick={() => setSelectedTask(task)}
+            isPlanningMode={isPlanningMode}
           />
         ))}
       </div>
@@ -68,6 +70,7 @@ export function TaskList({ tasks, onComplete, onUpdateNotes, onUpdateTitle }: Ta
           onComplete={handleTaskComplete}
           onUpdateNotes={onUpdateNotes}
           onUpdateTitle={onUpdateTitle}
+          isPlanningMode={isPlanningMode}
         />
       )}
     </>

@@ -24,6 +24,7 @@ const STORAGE_KEYS = {
   progress: "conodot_progress",
   settings: "conodot_settings",
   lastActiveDate: "conodot_last_active_date",
+  dailyCompletedDate: "conodot_daily_completed_date",
   pet: "conodot_pet",
   inventory: "conodot_inventory",
 } as const;
@@ -79,6 +80,7 @@ export function useStore() {
   const [settings, setSettings] = useState<UserSettings>(defaultSettings);
   const [pet, setPet] = useState<PetState>(createDefaultPet);
   const [inventory, setInventory] = useState<Inventory>(defaultInventory);
+  const [dailyCompletedDate, setDailyCompletedDate] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage on mount
@@ -99,6 +101,10 @@ export function useStore() {
     );
 
     const today = getTodayDateString();
+    const storedDailyCompletedDate = getFromStorage<string>(
+      STORAGE_KEYS.dailyCompletedDate,
+      ""
+    );
 
     // Check if we need to do a midnight reset
     if (lastActiveDate && lastActiveDate !== today) {
@@ -110,9 +116,14 @@ export function useStore() {
       setArchive(newArchive);
       setToStorage(STORAGE_KEYS.archive, newArchive);
 
-      // Reset tasks for new day
-      setTasks([]);
-      setToStorage(STORAGE_KEYS.tasks, []);
+      // Keep unfinished tasks (planned for today) but reset completed ones
+      const unfinishedTasks = storedTasks.filter((t) => !t.isCompleted);
+      setTasks(unfinishedTasks);
+      setToStorage(STORAGE_KEYS.tasks, unfinishedTasks);
+
+      // Reset dailyCompletedDate since it's a new day
+      setDailyCompletedDate("");
+      setToStorage(STORAGE_KEYS.dailyCompletedDate, "");
 
       // Check streak - reset if lastCompletedDate is not yesterday
       const lastCompleted = storedProgress.lastCompletedDate;
@@ -126,6 +137,8 @@ export function useStore() {
       setTasks(storedTasks);
       setArchive(storedArchive);
       setProgress(storedProgress);
+      // Only set dailyCompletedDate if it's from today
+      setDailyCompletedDate(storedDailyCompletedDate === today ? storedDailyCompletedDate : "");
     }
 
     setSettings(storedSettings);
@@ -203,6 +216,16 @@ export function useStore() {
       setToStorage(STORAGE_KEYS.inventory, inventory);
     }
   }, [inventory, isLoaded]);
+
+  // Persist dailyCompletedDate
+  useEffect(() => {
+    if (isLoaded) {
+      setToStorage(STORAGE_KEYS.dailyCompletedDate, dailyCompletedDate);
+    }
+  }, [dailyCompletedDate, isLoaded]);
+
+  // Planning mode: user completed all tasks today, now planning for tomorrow
+  const isPlanningMode = dailyCompletedDate === getTodayDateString();
 
   // Task counts
   const signalTasks = tasks.filter((t) => t.type === "signal");
@@ -296,6 +319,9 @@ export function useStore() {
   // Complete task
   const completeTask = useCallback(
     (taskId: string) => {
+      // Don't allow completion in planning mode (tasks are for tomorrow)
+      if (isPlanningMode) return;
+
       // Find task first to check if already completed
       const task = tasks.find((t) => t.id === taskId);
       if (!task || task.isCompleted) return;
@@ -320,6 +346,8 @@ export function useStore() {
       if (allTasksWillBeComplete) {
         setArchive((prev) => [...updatedTasks, ...prev]);
         setTasks([]);
+        // Mark today as completed - user is now in planning mode
+        setDailyCompletedDate(getTodayDateString());
       } else {
         // Just update the task
         setTasks(updatedTasks);
@@ -373,7 +401,7 @@ export function useStore() {
         };
       });
     },
-    [tasks]
+    [tasks, isPlanningMode]
   );
 
   // Delete task (only uncompleted)
@@ -550,6 +578,7 @@ export function useStore() {
     completedCount,
     allTasksComplete,
     dailyGoalComplete,
+    isPlanningMode,
 
     // Pet Computed
     remainingFeedings,

@@ -11,9 +11,10 @@ interface TaskDetailProps {
   onComplete: (id: string) => void;
   onUpdateNotes: (id: string, notes: string) => void;
   onUpdateTitle: (id: string, title: string) => void;
+  isPlanningMode?: boolean;
 }
 
-export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, onUpdateTitle }: TaskDetailProps) {
+export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, onUpdateTitle, isPlanningMode = false }: TaskDetailProps) {
   const [title, setTitle] = useState(task.title);
   const [notes, setNotes] = useState(task.notes || "");
 
@@ -32,7 +33,7 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, o
   };
 
   const handleComplete = () => {
-    if (!task.isCompleted) {
+    if (!task.isCompleted && !isPlanningMode) {
       onComplete(task.id);
     }
   };
@@ -109,15 +110,17 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, o
           <div className="flex items-start gap-3 min-w-0">
             <button
               onClick={handleComplete}
-              disabled={task.isCompleted}
+              disabled={task.isCompleted || isPlanningMode}
               className={`mt-2 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-all duration-200 ${
                 task.isCompleted
                   ? "bg-chestnut border-chestnut"
+                  : isPlanningMode
+                  ? "border-silver/50 cursor-not-allowed"
                   : task.type === "signal"
                   ? "border-chestnut hover:bg-chestnut/10"
                   : "border-taupe hover:bg-taupe/10"
               }`}
-              aria-label={task.isCompleted ? "Task completed" : "Mark task as complete"}
+              aria-label={task.isCompleted ? "Task completed" : isPlanningMode ? "Tasks can be completed tomorrow" : "Mark task as complete"}
             >
               {task.isCompleted && (
                 <svg

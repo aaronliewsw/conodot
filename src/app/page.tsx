@@ -19,6 +19,7 @@ export default function Home() {
     completedCount,
     allTasksComplete,
     dailyGoalComplete,
+    isPlanningMode,
     canAddTask,
     addTask,
     completeTask,
@@ -68,8 +69,18 @@ export default function Home() {
         />
       </div>
 
+      {/* Planning Mode Banner */}
+      {isPlanningMode && (
+        <div className="mx-6 mb-4 p-4 bg-chestnut/10 border border-chestnut/20 rounded-lg text-center">
+          <p className="text-chestnut font-medium">Planning tomorrow&apos;s tasks</p>
+          <p className="text-sm text-taupe mt-1">
+            You can check these off after midnight.
+          </p>
+        </div>
+      )}
+
       {/* Completion Banners */}
-      {allTasksComplete && (
+      {!isPlanningMode && allTasksComplete && (
         <div className="mx-6 mb-4 p-4 bg-chestnut/10 border border-chestnut/20 rounded-lg text-center">
           <p className="text-chestnut font-medium">All tasks complete!</p>
           <p className="text-sm text-taupe mt-1">
@@ -77,7 +88,7 @@ export default function Home() {
           </p>
         </div>
       )}
-      {!allTasksComplete && dailyGoalComplete && (() => {
+      {!isPlanningMode && !allTasksComplete && dailyGoalComplete && (() => {
         const hasIncompleteNoise = tasks.some(t => t.type === "noise" && !t.isCompleted);
         const hasNoiseTask = tasks.some(t => t.type === "noise");
         return (
@@ -96,7 +107,7 @@ export default function Home() {
 
       {/* Main content */}
       <div className="flex-1 px-6 py-2 overflow-y-auto">
-        <TaskList tasks={tasks} onComplete={completeTask} onUpdateNotes={updateTaskNotes} onUpdateTitle={updateTaskTitle} />
+        <TaskList tasks={tasks} onComplete={completeTask} onUpdateNotes={updateTaskNotes} onUpdateTitle={updateTaskTitle} isPlanningMode={isPlanningMode} />
       </div>
 
       {/* Task count indicator */}

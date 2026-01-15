@@ -151,6 +151,44 @@ const steps = [
     ),
   },
   {
+    id: "planning",
+    title: "Plan Ahead",
+    subtitle: "Finish today, prepare for tomorrow",
+    content: (
+      <div className="space-y-4">
+        <div className="p-4 bg-chestnut/10 border border-chestnut/20 rounded-lg text-center">
+          <p className="text-chestnut font-medium">Planning Mode</p>
+          <p className="text-sm text-taupe mt-1">
+            Activates when all tasks are complete
+          </p>
+        </div>
+        <div className="flex justify-center">
+          <ul className="text-sm text-silver space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">1.</span>
+              <span>Complete all 5 tasks for today</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">2.</span>
+              <span>Your tasks move to the archive</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">3.</span>
+              <span>Add tomorrow&apos;s tasks in advance</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-chestnut">4.</span>
+              <span>Check them off after midnight</span>
+            </li>
+          </ul>
+        </div>
+        <p className="text-xs text-taupe text-center pt-2">
+          Planning mode helps you start each day with intention.
+        </p>
+      </div>
+    ),
+  },
+  {
     id: "ready",
     title: "Ready to Focus",
     subtitle: "Signal tasks build your streak",

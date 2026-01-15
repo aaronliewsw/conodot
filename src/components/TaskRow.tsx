@@ -7,9 +7,10 @@ interface TaskRowProps {
   task: Task;
   onComplete: (id: string) => void;
   onClick: () => void;
+  isPlanningMode?: boolean;
 }
 
-export function TaskRow({ task, onComplete, onClick }: TaskRowProps) {
+export function TaskRow({ task, onComplete, onClick, isPlanningMode = false }: TaskRowProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [strikeWidth, setStrikeWidth] = useState(0);
   const completingRef = useRef(false);
@@ -21,7 +22,7 @@ export function TaskRow({ task, onComplete, onClick }: TaskRowProps) {
   }, []);
 
   const handleComplete = () => {
-    if (task.isCompleted || isAnimating || completingRef.current) return;
+    if (task.isCompleted || isAnimating || completingRef.current || isPlanningMode) return;
 
     completingRef.current = true;
     setIsAnimating(true);
@@ -61,11 +62,13 @@ export function TaskRow({ task, onComplete, onClick }: TaskRowProps) {
       {/* Checkbox */}
       <button
         onClick={handleComplete}
-        disabled={task.isCompleted}
-        aria-label={task.isCompleted ? "Task completed" : "Mark task as complete"}
+        disabled={task.isCompleted || isPlanningMode}
+        aria-label={task.isCompleted ? "Task completed" : isPlanningMode ? "Tasks can be completed tomorrow" : "Mark task as complete"}
         className={`relative w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
           task.isCompleted
             ? "bg-chestnut border-chestnut"
+            : isPlanningMode
+            ? "border-silver/50 cursor-not-allowed"
             : isAnimating
             ? "bg-chestnut/50 border-chestnut scale-95"
             : task.type === "signal"
