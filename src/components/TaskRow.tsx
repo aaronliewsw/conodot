@@ -132,11 +132,6 @@ export function TaskRow({ task, onComplete, onClick }: TaskRowProps) {
           )}
         </div>
 
-        {task.notes && (
-          <p className={`text-sm text-taupe mt-1 truncate ${isStrikethrough ? "opacity-50" : ""}`}>
-            {task.notes}
-          </p>
-        )}
       </div>
     </div>
   );
