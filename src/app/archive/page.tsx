@@ -1,17 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Logo } from "@/components/Logo";
 import { TaskDetail } from "@/components/TaskDetail";
 import { useStore } from "@/store/useStore";
 import { useRouter } from "next/navigation";
-import { formatDate } from "@/lib/utils";
 import { Task } from "@/types";
+
+// Get the group key for a task date
+function getGroupKey(dateStr: string): { key: string; label: string; sortOrder: number } {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const taskDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+  // Yesterday
+  if (taskDate.getTime() === yesterday.getTime()) {
+    return { key: "yesterday", label: "Yesterday", sortOrder: 0 };
+  }
+
+  // Same year - group by month
+  if (date.getFullYear() === now.getFullYear()) {
+    const monthName = date.toLocaleDateString("en-US", { month: "long" });
+    // sortOrder: months in current year, more recent = lower number
+    const sortOrder = 100 - date.getMonth();
+    return { key: `month-${date.getMonth()}`, label: monthName, sortOrder };
+  }
+
+  // Previous years - group by year
+  const year = date.getFullYear().toString();
+  // sortOrder: years, more recent = lower number
+  const sortOrder = 1000 - date.getFullYear();
+  return { key: `year-${year}`, label: year, sortOrder };
+}
 
 export default function ArchivePage() {
   const router = useRouter();
   const { archive, isLoaded } = useStore();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  // Group tasks by period (yesterday, month, year)
+  const groupedTasks = useMemo(() => {
+    const groups: Record<string, { label: string; sortOrder: number; tasks: Task[] }> = {};
+
+    archive.forEach((task) => {
+      const dateStr = task.completedAt
+        ? task.completedAt.split("T")[0]
+        : task.createdAt.split("T")[0];
+      const { key, label, sortOrder } = getGroupKey(dateStr);
+
+      if (!groups[key]) {
+        groups[key] = { label, sortOrder, tasks: [] };
+      }
+      groups[key].tasks.push(task);
+    });
+
+    // Sort tasks within each group by date (newest first)
+    Object.values(groups).forEach((group) => {
+      group.tasks.sort((a, b) => {
+        const dateA = a.completedAt || a.createdAt;
+        const dateB = b.completedAt || b.createdAt;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      });
+    });
+
+    // Return sorted groups
+    return Object.entries(groups)
+      .sort(([, a], [, b]) => a.sortOrder - b.sortOrder)
+      .map(([key, { label, tasks }]) => ({ key, label, tasks }));
+  }, [archive]);
 
   if (!isLoaded) {
     return (
@@ -20,22 +80,6 @@ export default function ArchivePage() {
       </div>
     );
   }
-
-  // Group tasks by date
-  const tasksByDate = archive.reduce((acc, task) => {
-    const date = task.completedAt
-      ? task.completedAt.split("T")[0]
-      : task.createdAt.split("T")[0];
-    if (!acc[date]) {
-      acc[date] = [];
-    }
-    acc[date].push(task);
-    return acc;
-  }, {} as Record<string, typeof archive>);
-
-  const sortedDates = Object.keys(tasksByDate).sort(
-    (a, b) => new Date(b).getTime() - new Date(a).getTime()
-  );
 
   return (
     <main className="min-h-screen bg-dust-grey flex flex-col max-w-lg mx-auto">
@@ -54,7 +98,7 @@ export default function ArchivePage() {
 
       {/* Archive list */}
       <div className="flex-1 px-6 py-4 overflow-y-auto">
-        {sortedDates.length === 0 ? (
+        {groupedTasks.length === 0 ? (
           <div className="py-12 text-center">
             <p className="text-taupe">No archived tasks yet</p>
             <p className="text-silver text-sm mt-2">
@@ -63,13 +107,13 @@ export default function ArchivePage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {sortedDates.map((date) => (
-              <div key={date}>
+            {groupedTasks.map(({ key, label, tasks }) => (
+              <div key={key}>
                 <h2 className="text-sm font-medium text-taupe mb-3">
-                  {formatDate(date)}
+                  {label}
                 </h2>
                 <div className="space-y-2">
-                  {tasksByDate[date].map((task) => (
+                  {tasks.map((task) => (
                     <button
                       key={task.id}
                       onClick={() => setSelectedTask(task)}
