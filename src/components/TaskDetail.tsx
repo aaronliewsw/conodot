@@ -129,7 +129,7 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes }:
           </div>
 
           {/* Editable Notes */}
-          <div className="pl-8">
+          <div className="mt-4">
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -141,7 +141,7 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes }:
           </div>
 
           {/* Date */}
-          <div className="pl-8 pt-2 border-t border-silver/20">
+          <div className="pt-3 mt-2 border-t border-silver/20">
             <p className="text-xs text-silver">
               {dateLabel}: {formatDate(taskDate.split("T")[0])}
             </p>
