@@ -65,9 +65,9 @@ export function TaskDetail({ task, isOpen, onClose, onComplete }: TaskDetailProp
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-4 overflow-hidden">
           {/* Task with checkbox */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 min-w-0">
             <button
               onClick={handleComplete}
               disabled={task.isCompleted}
@@ -97,7 +97,7 @@ export function TaskDetail({ task, isOpen, onClose, onComplete }: TaskDetailProp
               )}
             </button>
             <p
-              className={`text-base leading-relaxed break-words ${
+              className={`text-base leading-relaxed break-all min-w-0 ${
                 task.isCompleted ? "text-taupe line-through" : "text-chestnut"
               }`}
             >
