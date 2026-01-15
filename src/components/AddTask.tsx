@@ -224,24 +224,11 @@ export function AddTask({
         />
       </div>
 
-      {/* Instructions */}
-      <p className="text-xs text-taupe text-center">
-        {title.trim()
-          ? "← Noise | Signal →"
-          : "Type your task first"
-        }
-      </p>
-
-      {/* Limit indicators - only show when user has typed something */}
-      {title.trim() && (
-        <div className="flex justify-between text-xs">
-          <span className={canAddNoise ? "text-taupe" : "text-silver"}>
-            {canAddNoise ? "← Noise" : noiseReason}
-          </span>
-          <span className={canAddSignal ? "text-chestnut" : "text-silver"}>
-            {canAddSignal ? "Signal →" : signalReason}
-          </span>
-        </div>
+      {/* Instructions - only show when no task typed */}
+      {!title.trim() && (
+        <p className="text-xs text-taupe text-center">
+          Type your task first
+        </p>
       )}
 
       {/* Manual buttons as fallback */}
