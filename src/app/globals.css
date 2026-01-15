@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* Conodot Color Palette (from PRD) */
+:root {
+  /* Primary colors */
+  --dust-grey: #eadeda;
+  --taupe: #998888;
+  --silver: #bfb8ad;
+  --chestnut: #823329;
+  --burnt-rose: #8a3033;
+
+  /* Semantic colors */
+  --background: var(--dust-grey);
+  --foreground: var(--chestnut);
+  --text-primary: var(--chestnut);
+  --text-secondary: var(--taupe);
+  --text-muted: var(--silver);
+  --accent: var(--burnt-rose);
+  --signal: var(--chestnut);
+  --noise: var(--taupe);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-dust-grey: var(--dust-grey);
+  --color-taupe: var(--taupe);
+  --color-silver: var(--silver);
+  --color-chestnut: var(--chestnut);
+  --color-burnt-rose: var(--burnt-rose);
+  --color-signal: var(--signal);
+  --color-noise: var(--noise);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Disable dark mode - Conodot is light-only per PRD */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: var(--dust-grey);
+    --foreground: var(--chestnut);
+  }
+}
