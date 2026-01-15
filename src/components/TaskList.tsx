@@ -8,9 +8,10 @@ import { TaskDetail } from "./TaskDetail";
 interface TaskListProps {
   tasks: Task[];
   onComplete: (id: string) => void;
+  onUpdateNotes: (id: string, notes: string) => void;
 }
 
-export function TaskList({ tasks, onComplete }: TaskListProps) {
+export function TaskList({ tasks, onComplete, onUpdateNotes }: TaskListProps) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   if (tasks.length === 0) {
@@ -64,6 +65,7 @@ export function TaskList({ tasks, onComplete }: TaskListProps) {
           isOpen={!!selectedTask}
           onClose={() => setSelectedTask(null)}
           onComplete={handleTaskComplete}
+          onUpdateNotes={onUpdateNotes}
         />
       )}
     </>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Task } from "@/types";
 import { formatDate } from "@/lib/utils";
 
@@ -8,20 +9,42 @@ interface TaskDetailProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete: (id: string) => void;
+  onUpdateNotes: (id: string, notes: string) => void;
 }
 
-export function TaskDetail({ task, isOpen, onClose, onComplete }: TaskDetailProps) {
+export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes }: TaskDetailProps) {
+  const [notes, setNotes] = useState(task.notes || "");
+
+  // Sync notes when task changes
+  useEffect(() => {
+    setNotes(task.notes || "");
+  }, [task.notes, task.id]);
+
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      handleClose();
     }
   };
 
   const handleComplete = () => {
     if (!task.isCompleted) {
       onComplete(task.id);
+    }
+  };
+
+  const handleClose = () => {
+    // Save notes before closing
+    if (notes !== (task.notes || "")) {
+      onUpdateNotes(task.id, notes);
+    }
+    onClose();
+  };
+
+  const handleNotesBlur = () => {
+    if (notes !== (task.notes || "")) {
+      onUpdateNotes(task.id, notes);
     }
   };
 
@@ -44,7 +67,7 @@ export function TaskDetail({ task, isOpen, onClose, onComplete }: TaskDetailProp
             {task.type}
           </span>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-taupe hover:text-chestnut transition-colors p-1"
             aria-label="Close"
           >
@@ -105,12 +128,17 @@ export function TaskDetail({ task, isOpen, onClose, onComplete }: TaskDetailProp
             </p>
           </div>
 
-          {/* Notes */}
-          {task.notes && (
-            <div className="pl-8">
-              <p className="text-sm text-taupe">{task.notes}</p>
-            </div>
-          )}
+          {/* Editable Notes */}
+          <div className="pl-8">
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              onBlur={handleNotesBlur}
+              placeholder="Notes"
+              rows={3}
+              className="w-full px-3 py-2 text-sm text-taupe bg-silver/10 border border-silver/20 rounded-lg placeholder:text-silver focus:outline-none focus:border-chestnut/30 resize-none"
+            />
+          </div>
 
           {/* Date */}
           <div className="pl-8 pt-2 border-t border-silver/20">

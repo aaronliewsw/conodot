@@ -296,6 +296,15 @@ export function useStore() {
     setTasks((prev) => prev.filter((t) => t.id !== taskId || t.isCompleted));
   }, []);
 
+  // Update task notes
+  const updateTaskNotes = useCallback((taskId: string, notes: string) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId ? { ...t, notes: notes.trim() || undefined } : t
+      )
+    );
+  }, []);
+
   // Mark onboarding as seen
   const completeOnboarding = useCallback(() => {
     setSettings((prev) => ({ ...prev, hasSeenOnboarding: true }));
@@ -353,6 +362,7 @@ export function useStore() {
     addTask,
     completeTask,
     deleteTask,
+    updateTaskNotes,
     completeOnboarding,
     showOnboarding,
     updateNotificationTime,
