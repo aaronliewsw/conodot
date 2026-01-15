@@ -83,12 +83,12 @@ export default function ShopPage() {
       </div>
 
       {/* Footer */}
-      <footer className="px-6 py-4 text-center border-t border-silver/20">
+      <footer className="px-6 py-4">
         <Link
           href="/cat"
-          className="text-xs text-taupe hover:text-chestnut transition-colors"
+          className="block w-full py-3 text-center font-medium text-dust-grey bg-chestnut rounded-lg hover:bg-burnt-rose transition-colors"
         >
-          &larr; Back to Cat
+          Back to Cat
         </Link>
       </footer>
     </main>
