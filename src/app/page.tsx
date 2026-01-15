@@ -77,14 +77,22 @@ export default function Home() {
           </p>
         </div>
       )}
-      {!allTasksComplete && dailyGoalComplete && (
-        <div className="mx-6 mb-4 p-4 bg-chestnut/5 border border-chestnut/10 rounded-lg text-center">
-          <p className="text-chestnut font-medium">All Signal tasks complete!</p>
-          <p className="text-sm text-taupe mt-1">
-            Great focus today. Finish your Noise task if you have one.
-          </p>
-        </div>
-      )}
+      {!allTasksComplete && dailyGoalComplete && (() => {
+        const hasIncompleteNoise = tasks.some(t => t.type === "noise" && !t.isCompleted);
+        const hasNoiseTask = tasks.some(t => t.type === "noise");
+        return (
+          <div className="mx-6 mb-4 p-4 bg-chestnut/5 border border-chestnut/10 rounded-lg text-center">
+            <p className="text-chestnut font-medium">All Signal tasks complete!</p>
+            <p className="text-sm text-taupe mt-1">
+              {hasIncompleteNoise
+                ? "Great focus today. Finish your Noise task if you have one."
+                : hasNoiseTask
+                ? "Great focus today. All tasks done!"
+                : "Great focus today. Add a Noise task if you have one."}
+            </p>
+          </div>
+        );
+      })()}
 
       {/* Main content */}
       <div className="flex-1 px-6 py-2 overflow-y-auto">
