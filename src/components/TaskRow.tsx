@@ -59,7 +59,7 @@ export function TaskRow({ task, onComplete, onClick, isPlanningMode = false }: T
   return (
     <div
       className={`flex items-center gap-4 py-4 px-3 -mx-1 rounded-lg border-b border-silver/20 transition-all duration-300 ${
-        task.isCompleted ? "opacity-50" : "hover:shadow-md hover:bg-silver/5 hover:-translate-y-0.5"
+        task.isCompleted ? "opacity-50" : "hover:bg-silver/5"
       }`}
     >
       {/* Checkbox */}
