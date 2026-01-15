@@ -1,13 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { TaskDetail } from "@/components/TaskDetail";
 import { useStore } from "@/store/useStore";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils";
+import { Task } from "@/types";
 
 export default function ArchivePage() {
   const router = useRouter();
   const { archive, isLoaded } = useStore();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   if (!isLoaded) {
     return (
@@ -66,9 +70,10 @@ export default function ArchivePage() {
                 </h2>
                 <div className="space-y-2">
                   {tasksByDate[date].map((task) => (
-                    <div
+                    <button
                       key={task.id}
-                      className="flex items-center gap-3 py-2 px-3 bg-silver/10 rounded"
+                      onClick={() => setSelectedTask(task)}
+                      className="w-full flex items-center gap-3 py-2 px-3 bg-silver/10 rounded hover:bg-silver/20 transition-colors text-left"
                     >
                       <span
                         className={`text-xs font-medium uppercase ${
@@ -79,10 +84,10 @@ export default function ArchivePage() {
                       >
                         {task.type}
                       </span>
-                      <span className="text-chestnut/70 line-through">
+                      <span className="text-chestnut/70 line-through truncate">
                         {task.title}
                       </span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -100,6 +105,16 @@ export default function ArchivePage() {
           ← Back to Today
         </button>
       </footer>
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <TaskDetail
+          task={selectedTask}
+          isOpen={!!selectedTask}
+          onClose={() => setSelectedTask(null)}
+          readOnly
+        />
+      )}
     </main>
   );
 }
