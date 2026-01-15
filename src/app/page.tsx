@@ -4,6 +4,7 @@ import { Logo } from "@/components/Logo";
 import { XPBar } from "@/components/XPBar";
 import { TaskList } from "@/components/TaskList";
 import { AddTask } from "@/components/AddTask";
+import { Onboarding } from "@/components/Onboarding";
 import { useStore } from "@/store/useStore";
 import Link from "next/link";
 
@@ -11,6 +12,7 @@ export default function Home() {
   const {
     tasks,
     progress,
+    settings,
     isLoaded,
     signalCount,
     noiseCount,
@@ -19,6 +21,7 @@ export default function Home() {
     canAddTask,
     addTask,
     completeTask,
+    completeOnboarding,
   } = useStore();
 
   const signalCheck = canAddTask("signal");
@@ -30,6 +33,11 @@ export default function Home() {
         <div className="text-taupe animate-pulse">Loading...</div>
       </div>
     );
+  }
+
+  // Show onboarding for first-time users
+  if (!settings.hasSeenOnboarding) {
+    return <Onboarding onComplete={completeOnboarding} />;
   }
 
   return (
