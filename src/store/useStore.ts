@@ -458,12 +458,14 @@ export function useStore() {
     setSettings({ hasSeenOnboarding: false });
     setPet(createDefaultPet());
     setInventory(defaultInventory);
+    setDailyCompletedDate("");
     setToStorage(STORAGE_KEYS.tasks, []);
     setToStorage(STORAGE_KEYS.archive, []);
     setToStorage(STORAGE_KEYS.progress, defaultProgress);
     setToStorage(STORAGE_KEYS.settings, { hasSeenOnboarding: false });
     setToStorage(STORAGE_KEYS.pet, createDefaultPet());
     setToStorage(STORAGE_KEYS.inventory, defaultInventory);
+    setToStorage(STORAGE_KEYS.dailyCompletedDate, "");
   }, []);
 
   // ============================================
