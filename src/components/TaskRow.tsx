@@ -44,7 +44,10 @@ export function TaskRow({ task, onComplete, onClick, isPlanningMode = false }: T
       } else {
         // Final haptic on complete
         triggerHaptic([5, 30, 5]);
-        onComplete(task.id);
+        // Delay before moving task to bottom for smoother experience
+        setTimeout(() => {
+          onComplete(task.id);
+        }, 200);
       }
     };
 
@@ -55,7 +58,7 @@ export function TaskRow({ task, onComplete, onClick, isPlanningMode = false }: T
 
   return (
     <div
-      className={`flex items-center gap-4 py-4 px-3 -mx-1 rounded-lg border-b border-silver/20 transition-all duration-200 ${
+      className={`flex items-center gap-4 py-4 px-3 -mx-1 rounded-lg border-b border-silver/20 transition-all duration-300 ${
         task.isCompleted ? "opacity-50" : "hover:shadow-md hover:bg-silver/5 hover:-translate-y-0.5"
       }`}
     >
@@ -64,7 +67,7 @@ export function TaskRow({ task, onComplete, onClick, isPlanningMode = false }: T
         onClick={handleComplete}
         disabled={task.isCompleted || isPlanningMode}
         aria-label={task.isCompleted ? "Task completed" : isPlanningMode ? "Tasks can be completed tomorrow" : "Mark task as complete"}
-        className={`relative w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+        className={`relative w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
           task.isCompleted
             ? "bg-chestnut border-chestnut"
             : isPlanningMode
@@ -78,7 +81,7 @@ export function TaskRow({ task, onComplete, onClick, isPlanningMode = false }: T
       >
         {(task.isCompleted || isAnimating) && (
           <svg
-            className={`w-3.5 h-3.5 text-dust-grey transition-transform duration-200 ${
+            className={`w-3.5 h-3.5 text-dust-grey transition-transform duration-300 ${
               isAnimating ? "scale-0" : "scale-100"
             }`}
             fill="none"
