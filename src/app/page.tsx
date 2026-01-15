@@ -14,6 +14,8 @@ export default function Home() {
     isLoaded,
     signalCount,
     noiseCount,
+    completedCount,
+    allComplete,
     canAddTask,
     addTask,
     completeTask,
@@ -25,18 +27,24 @@ export default function Home() {
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dust-grey">
-        <div className="text-taupe">Loading...</div>
+        <div className="text-taupe animate-pulse">Loading...</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-dust-grey flex flex-col">
+    <main className="min-h-screen bg-dust-grey flex flex-col max-w-lg mx-auto">
       {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between">
+      <header className="px-6 py-4 flex items-center justify-between border-b border-silver/20">
         <Logo />
-        <div className="text-sm text-taupe">
-          {signalCount}/4 Signal · {noiseCount}/1 Noise
+        <div className="text-xs text-taupe">
+          <span className={signalCount > 0 ? "text-chestnut" : ""}>
+            {signalCount}/4 Signal
+          </span>
+          <span className="mx-1.5">·</span>
+          <span className={noiseCount > 0 ? "text-taupe" : ""}>
+            {noiseCount}/1 Noise
+          </span>
         </div>
       </header>
 
@@ -49,10 +57,27 @@ export default function Home() {
         />
       </div>
 
+      {/* All Complete Banner */}
+      {allComplete && tasks.length > 0 && (
+        <div className="mx-6 mb-4 p-4 bg-chestnut/10 border border-chestnut/20 rounded-lg text-center">
+          <p className="text-chestnut font-medium">All tasks complete!</p>
+          <p className="text-sm text-taupe mt-1">
+            You&apos;ve earned your rest. See you tomorrow.
+          </p>
+        </div>
+      )}
+
       {/* Main content */}
-      <div className="flex-1 px-6 py-4">
+      <div className="flex-1 px-6 py-2 overflow-y-auto">
         <TaskList tasks={tasks} onComplete={completeTask} />
       </div>
+
+      {/* Task count indicator */}
+      {tasks.length > 0 && (
+        <div className="px-6 py-2 text-center text-xs text-taupe">
+          {completedCount}/{tasks.length} completed
+        </div>
+      )}
 
       {/* Add task */}
       <div className="px-6 py-4">
@@ -66,7 +91,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="px-6 py-4 flex items-center justify-between text-xs text-taupe">
+      <footer className="px-6 py-4 flex items-center justify-between text-xs text-taupe border-t border-silver/20">
         <Link href="/archive" className="hover:text-chestnut transition-colors">
           Archive
         </Link>

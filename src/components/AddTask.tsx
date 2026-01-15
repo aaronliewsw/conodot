@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { TaskType } from "@/types";
 
 interface AddTaskProps {
@@ -22,9 +22,24 @@ export function AddTask({
   const [title, setTitle] = useState("");
   const [swipeX, setSwipeX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showSuccess, setShowSuccess] = useState<TaskType | null>(null);
   const startX = useRef(0);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const SWIPE_THRESHOLD = 80;
+  const MAX_SWIPE = 120;
+
+  // Calculate swipe progress (0 to 1)
+  const swipeProgress = Math.min(Math.abs(swipeX) / SWIPE_THRESHOLD, 1);
+  const isSwipingRight = swipeX > 0;
+  const isSwipingLeft = swipeX < 0;
+  const hasReachedThreshold = Math.abs(swipeX) >= SWIPE_THRESHOLD;
+
+  const triggerHaptic = useCallback((pattern: number | number[]) => {
+    if (navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  }, []);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!title.trim()) return;
@@ -36,7 +51,14 @@ export function AddTask({
     if (!isDragging || !title.trim()) return;
     const currentX = e.touches[0].clientX;
     const diff = currentX - startX.current;
-    setSwipeX(Math.max(-150, Math.min(150, diff)));
+    const clampedDiff = Math.max(-MAX_SWIPE, Math.min(MAX_SWIPE, diff));
+
+    // Haptic feedback when crossing threshold
+    if (Math.abs(clampedDiff) >= SWIPE_THRESHOLD && Math.abs(swipeX) < SWIPE_THRESHOLD) {
+      triggerHaptic(15);
+    }
+
+    setSwipeX(clampedDiff);
   };
 
   const handleTouchEnd = () => {
@@ -44,18 +66,18 @@ export function AddTask({
     setIsDragging(false);
 
     if (swipeX > SWIPE_THRESHOLD && canAddSignal) {
-      // Swipe right = Signal
       submitTask("signal");
     } else if (swipeX < -SWIPE_THRESHOLD && canAddNoise) {
-      // Swipe left = Noise
       submitTask("noise");
+    } else {
+      setSwipeX(0);
     }
-
-    setSwipeX(0);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!title.trim()) return;
+    // Only track if clicking on the swipe area, not the input
+    if (e.target === inputRef.current) return;
     startX.current = e.clientX;
     setIsDragging(true);
   };
@@ -63,7 +85,7 @@ export function AddTask({
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || !title.trim()) return;
     const diff = e.clientX - startX.current;
-    setSwipeX(Math.max(-150, Math.min(150, diff)));
+    setSwipeX(Math.max(-MAX_SWIPE, Math.min(MAX_SWIPE, diff)));
   };
 
   const handleMouseUp = () => {
@@ -74,9 +96,9 @@ export function AddTask({
       submitTask("signal");
     } else if (swipeX < -SWIPE_THRESHOLD && canAddNoise) {
       submitTask("noise");
+    } else {
+      setSwipeX(0);
     }
-
-    setSwipeX(0);
   };
 
   const submitTask = (type: TaskType) => {
@@ -84,8 +106,18 @@ export function AddTask({
 
     const success = onAdd(title.trim(), type);
     if (success) {
-      setTitle("");
-      setIsOpen(false);
+      // Show success animation
+      setShowSuccess(type);
+      triggerHaptic([10, 50, 10]);
+
+      setTimeout(() => {
+        setTitle("");
+        setSwipeX(0);
+        setShowSuccess(null);
+        setIsOpen(false);
+      }, 400);
+    } else {
+      setSwipeX(0);
     }
   };
 
@@ -98,7 +130,7 @@ export function AddTask({
         disabled={!canAdd}
         className={`w-full py-4 text-center rounded-lg transition-all duration-200 ${
           canAdd
-            ? "bg-chestnut/10 text-chestnut hover:bg-chestnut/20"
+            ? "bg-chestnut/10 text-chestnut hover:bg-chestnut/20 active:scale-[0.98]"
             : "bg-silver/20 text-taupe cursor-not-allowed"
         }`}
       >
@@ -107,11 +139,37 @@ export function AddTask({
     );
   }
 
+  // Dynamic background based on swipe direction
+  const getSwipeBackground = () => {
+    if (showSuccess === "signal") return "bg-chestnut/20";
+    if (showSuccess === "noise") return "bg-taupe/20";
+    if (isSwipingRight && canAddSignal) {
+      return `bg-chestnut/${Math.round(swipeProgress * 15)}`;
+    }
+    if (isSwipingLeft && canAddNoise) {
+      return `bg-taupe/${Math.round(swipeProgress * 15)}`;
+    }
+    return "bg-silver/10";
+  };
+
   return (
-    <div className="space-y-4 p-4 bg-silver/10 rounded-lg">
+    <div
+      className={`space-y-4 p-4 rounded-lg transition-colors duration-150 ${getSwipeBackground()}`}
+      style={{
+        backgroundColor: showSuccess === "signal"
+          ? "rgba(130, 51, 41, 0.2)"
+          : showSuccess === "noise"
+          ? "rgba(153, 136, 136, 0.2)"
+          : isSwipingRight && canAddSignal
+          ? `rgba(130, 51, 41, ${swipeProgress * 0.15})`
+          : isSwipingLeft && canAddNoise
+          ? `rgba(153, 136, 136, ${swipeProgress * 0.15})`
+          : "rgba(191, 184, 173, 0.1)"
+      }}
+    >
       {/* Input with swipe area */}
       <div
-        className="relative select-none"
+        className="relative select-none overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -120,31 +178,47 @@ export function AddTask({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {/* Swipe indicators */}
+        {/* Swipe indicator backgrounds */}
         <div
-          className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pr-4 text-sm font-medium transition-opacity ${
-            swipeX < -20 ? "opacity-100" : "opacity-0"
-          } ${canAddNoise ? "text-taupe" : "text-silver"}`}
+          className="absolute inset-y-0 left-0 flex items-center justify-end pr-3 pointer-events-none transition-all duration-150"
+          style={{
+            width: isSwipingLeft ? `${Math.abs(swipeX)}px` : 0,
+            opacity: isSwipingLeft ? swipeProgress : 0,
+          }}
         >
-          ← Noise
+          <span className={`text-sm font-medium ${hasReachedThreshold && canAddNoise ? "text-taupe" : "text-silver"}`}>
+            Noise
+          </span>
         </div>
         <div
-          className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pl-4 text-sm font-medium transition-opacity ${
-            swipeX > 20 ? "opacity-100" : "opacity-0"
-          } ${canAddSignal ? "text-chestnut" : "text-silver"}`}
+          className="absolute inset-y-0 right-0 flex items-center justify-start pl-3 pointer-events-none transition-all duration-150"
+          style={{
+            width: isSwipingRight ? `${swipeX}px` : 0,
+            opacity: isSwipingRight ? swipeProgress : 0,
+          }}
         >
-          Signal →
+          <span className={`text-sm font-medium ${hasReachedThreshold && canAddSignal ? "text-chestnut" : "text-silver"}`}>
+            Signal
+          </span>
         </div>
 
         {/* Input */}
         <input
+          ref={inputRef}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="What needs to be done?"
-          className="w-full px-4 py-3 bg-dust-grey border border-silver/30 rounded-lg text-chestnut placeholder:text-taupe/50 focus:outline-none focus:border-chestnut/50 transition-transform"
+          className={`w-full px-4 py-3 bg-dust-grey border rounded-lg text-chestnut placeholder:text-taupe/50 focus:outline-none transition-all duration-150 ${
+            hasReachedThreshold && isSwipingRight && canAddSignal
+              ? "border-chestnut"
+              : hasReachedThreshold && isSwipingLeft && canAddNoise
+              ? "border-taupe"
+              : "border-silver/30 focus:border-chestnut/50"
+          }`}
           style={{
             transform: `translateX(${swipeX}px)`,
+            transition: isDragging ? "none" : "transform 0.2s ease-out",
           }}
           autoFocus
         />
@@ -152,16 +226,19 @@ export function AddTask({
 
       {/* Instructions */}
       <p className="text-xs text-taupe text-center">
-        Type your task, then swipe right for Signal or left for Noise
+        {title.trim()
+          ? "Swipe right → Signal | Swipe left → Noise"
+          : "Type your task first"
+        }
       </p>
 
       {/* Limit indicators */}
       <div className="flex justify-between text-xs">
         <span className={canAddNoise ? "text-taupe" : "text-silver"}>
-          {canAddNoise ? "Noise available" : noiseReason}
+          {canAddNoise ? "← Noise" : noiseReason}
         </span>
         <span className={canAddSignal ? "text-chestnut" : "text-silver"}>
-          {canAddSignal ? "Signal available" : signalReason}
+          {canAddSignal ? "Signal →" : signalReason}
         </span>
       </div>
 
@@ -171,9 +248,9 @@ export function AddTask({
           <button
             onClick={() => submitTask("noise")}
             disabled={!canAddNoise}
-            className={`flex-1 py-2 rounded text-sm font-medium transition-colors ${
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
               canAddNoise
-                ? "bg-taupe/20 text-taupe hover:bg-taupe/30"
+                ? "bg-taupe/20 text-taupe hover:bg-taupe/30 active:scale-[0.98]"
                 : "bg-silver/10 text-silver cursor-not-allowed"
             }`}
           >
@@ -182,9 +259,9 @@ export function AddTask({
           <button
             onClick={() => submitTask("signal")}
             disabled={!canAddSignal}
-            className={`flex-1 py-2 rounded text-sm font-medium transition-colors ${
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
               canAddSignal
-                ? "bg-chestnut/20 text-chestnut hover:bg-chestnut/30"
+                ? "bg-chestnut/20 text-chestnut hover:bg-chestnut/30 active:scale-[0.98]"
                 : "bg-silver/10 text-silver cursor-not-allowed"
             }`}
           >
@@ -198,6 +275,7 @@ export function AddTask({
         onClick={() => {
           setIsOpen(false);
           setTitle("");
+          setSwipeX(0);
         }}
         className="w-full py-2 text-sm text-taupe hover:text-chestnut transition-colors"
       >
