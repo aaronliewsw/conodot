@@ -129,6 +129,13 @@ export function useStore() {
     }
   }, [settings, isLoaded]);
 
+  // Persist archive
+  useEffect(() => {
+    if (isLoaded) {
+      setToStorage(STORAGE_KEYS.archive, archive);
+    }
+  }, [archive, isLoaded]);
+
   // Task counts
   const signalCount = tasks.filter((t) => t.type === "signal").length;
   const noiseCount = tasks.filter((t) => t.type === "noise").length;
@@ -203,50 +210,44 @@ export function useStore() {
   // Complete task
   const completeTask = useCallback(
     (taskId: string) => {
-      setTasks((prev) =>
-        prev.map((task) => {
-          if (task.id === taskId && !task.isCompleted) {
-            return {
-              ...task,
-              isCompleted: true,
-              completedAt: new Date().toISOString(),
-            };
-          }
-          return task;
-        })
-      );
+      setTasks((prev) => {
+        const task = prev.find((t) => t.id === taskId);
+        if (!task || task.isCompleted) return prev;
 
-      // Find the task to award XP
-      const task = tasks.find((t) => t.id === taskId);
-      if (task && !task.isCompleted) {
+        // Update tasks
+        const updatedTasks = prev.map((t) =>
+          t.id === taskId
+            ? { ...t, isCompleted: true, completedAt: new Date().toISOString() }
+            : t
+        );
+
+        // Award XP (using setTimeout to avoid state update during render)
         const xpGain = task.type === "signal" ? XP_VALUES.signal : XP_VALUES.noise;
-        setProgress((prev) => {
-          const newXP = prev.currentXP + xpGain;
-          const newLevel = Math.floor(newXP / XP_VALUES.xpPerLevel) + 1;
-          return {
-            ...prev,
-            currentXP: newXP,
-            currentLevel: newLevel,
-          };
-        });
-      }
+        setTimeout(() => {
+          setProgress((prevProgress) => {
+            const newXP = prevProgress.currentXP + xpGain;
+            const newLevel = Math.floor(newXP / XP_VALUES.xpPerLevel) + 1;
 
-      // Check if all tasks are now complete
-      const updatedTasks = tasks.map((t) =>
-        t.id === taskId ? { ...t, isCompleted: true } : t
-      );
-      const allNowComplete =
-        updatedTasks.length > 0 && updatedTasks.every((t) => t.isCompleted);
+            // Check if all tasks are now complete
+            const allNowComplete =
+              updatedTasks.length > 0 && updatedTasks.every((t) => t.isCompleted);
 
-      if (allNowComplete) {
-        setProgress((prev) => ({
-          ...prev,
-          streak: prev.streak + 1,
-          lastCompletedDate: getTodayDateString(),
-        }));
-      }
+            return {
+              ...prevProgress,
+              currentXP: newXP,
+              currentLevel: newLevel,
+              ...(allNowComplete && {
+                streak: prevProgress.streak + 1,
+                lastCompletedDate: getTodayDateString(),
+              }),
+            };
+          });
+        }, 0);
+
+        return updatedTasks;
+      });
     },
-    [tasks]
+    []
   );
 
   // Delete task (only uncompleted)
