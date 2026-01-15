@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Task } from "@/types";
 import { TaskRow } from "./TaskRow";
+import { TaskDetail } from "./TaskDetail";
 
 interface TaskListProps {
   tasks: Task[];
@@ -9,6 +11,8 @@ interface TaskListProps {
 }
 
 export function TaskList({ tasks, onComplete }: TaskListProps) {
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
   if (tasks.length === 0) {
     return (
       <div className="py-12 text-center">
@@ -33,11 +37,35 @@ export function TaskList({ tasks, onComplete }: TaskListProps) {
     return 0;
   });
 
+  const handleTaskComplete = (taskId: string) => {
+    onComplete(taskId);
+    // Update selected task if it's the one being completed
+    if (selectedTask?.id === taskId) {
+      setSelectedTask((prev) => prev ? { ...prev, isCompleted: true, completedAt: new Date().toISOString() } : null);
+    }
+  };
+
   return (
-    <div className="divide-y divide-silver/20">
-      {sortedTasks.map((task) => (
-        <TaskRow key={task.id} task={task} onComplete={onComplete} />
-      ))}
-    </div>
+    <>
+      <div className="divide-y divide-silver/20">
+        {sortedTasks.map((task) => (
+          <TaskRow
+            key={task.id}
+            task={task}
+            onComplete={onComplete}
+            onClick={() => setSelectedTask(task)}
+          />
+        ))}
+      </div>
+
+      {selectedTask && (
+        <TaskDetail
+          task={tasks.find((t) => t.id === selectedTask.id) || selectedTask}
+          isOpen={!!selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onComplete={handleTaskComplete}
+        />
+      )}
+    </>
   );
 }

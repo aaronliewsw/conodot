@@ -6,9 +6,10 @@ import { Task } from "@/types";
 interface TaskRowProps {
   task: Task;
   onComplete: (id: string) => void;
+  onClick: () => void;
 }
 
-export function TaskRow({ task, onComplete }: TaskRowProps) {
+export function TaskRow({ task, onComplete, onClick }: TaskRowProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [strikeWidth, setStrikeWidth] = useState(0);
   const completingRef = useRef(false);
@@ -91,8 +92,14 @@ export function TaskRow({ task, onComplete }: TaskRowProps) {
         )}
       </button>
 
-      {/* Task content */}
-      <div className="flex-1 min-w-0">
+      {/* Task content - clickable to open detail */}
+      <div
+        className="flex-1 min-w-0 cursor-pointer"
+        onClick={onClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === "Enter" && onClick()}
+      >
         <div className="flex items-center gap-2 mb-0.5">
           <span
             className={`text-xs font-medium uppercase tracking-wide ${
@@ -103,10 +110,10 @@ export function TaskRow({ task, onComplete }: TaskRowProps) {
           </span>
         </div>
 
-        {/* Task title with animated strikethrough */}
+        {/* Task title with animated strikethrough and truncation */}
         <div className="relative">
           <p
-            className={`text-lg transition-colors duration-300 ${
+            className={`text-lg transition-colors duration-300 truncate ${
               isStrikethrough ? "text-taupe" : "text-chestnut"
             }`}
           >
@@ -126,7 +133,7 @@ export function TaskRow({ task, onComplete }: TaskRowProps) {
         </div>
 
         {task.notes && (
-          <p className={`text-sm text-taupe mt-1 ${isStrikethrough ? "opacity-50" : ""}`}>
+          <p className={`text-sm text-taupe mt-1 truncate ${isStrikethrough ? "opacity-50" : ""}`}>
             {task.notes}
           </p>
         )}
