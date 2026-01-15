@@ -135,15 +135,27 @@ export function TaskDetail({ task, isOpen, onClose, onComplete, onUpdateNotes, o
                 </svg>
               )}
             </button>
-            <input
-              type="text"
+            <textarea
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onBlur={handleTitleBlur}
-              className={`flex-1 min-w-0 bg-transparent text-base leading-relaxed focus:outline-none ${
+              rows={1}
+              className={`flex-1 min-w-0 bg-transparent text-base leading-relaxed focus:outline-none resize-none overflow-hidden ${
                 task.isCompleted ? "text-taupe line-through" : "text-chestnut"
               }`}
               disabled={task.isCompleted}
+              style={{ height: 'auto' }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = target.scrollHeight + 'px';
+              }}
+              ref={(el) => {
+                if (el) {
+                  el.style.height = 'auto';
+                  el.style.height = el.scrollHeight + 'px';
+                }
+              }}
             />
           </div>
 
