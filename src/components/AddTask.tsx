@@ -232,15 +232,17 @@ export function AddTask({
         }
       </p>
 
-      {/* Limit indicators */}
-      <div className="flex justify-between text-xs">
-        <span className={canAddNoise ? "text-taupe" : "text-silver"}>
-          {canAddNoise ? "← Noise" : noiseReason}
-        </span>
-        <span className={canAddSignal ? "text-chestnut" : "text-silver"}>
-          {canAddSignal ? "Signal →" : signalReason}
-        </span>
-      </div>
+      {/* Limit indicators - only show when user has typed something */}
+      {title.trim() && (
+        <div className="flex justify-between text-xs">
+          <span className={canAddNoise ? "text-taupe" : "text-silver"}>
+            {canAddNoise ? "← Noise" : noiseReason}
+          </span>
+          <span className={canAddSignal ? "text-chestnut" : "text-silver"}>
+            {canAddSignal ? "Signal →" : signalReason}
+          </span>
+        </div>
+      )}
 
       {/* Manual buttons as fallback */}
       {title.trim() && (
