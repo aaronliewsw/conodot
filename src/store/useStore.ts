@@ -300,14 +300,30 @@ export function useStore() {
       const task = tasks.find((t) => t.id === taskId);
       if (!task || task.isCompleted) return;
 
-      // Update tasks
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === taskId
-            ? { ...t, isCompleted: true, completedAt: new Date().toISOString() }
-            : t
-        )
+      // Calculate what tasks will look like after completion
+      const updatedTasks = tasks.map((t) =>
+        t.id === taskId
+          ? { ...t, isCompleted: true, completedAt: new Date().toISOString() }
+          : t
       );
+
+      // Check if ALL tasks will be complete after this (4 Signal + 1 Noise, all done)
+      const signalTasksAfter = updatedTasks.filter((t) => t.type === "signal");
+      const noiseTasksAfter = updatedTasks.filter((t) => t.type === "noise");
+      const allTasksWillBeComplete =
+        signalTasksAfter.length === TASK_LIMITS.maxSignal &&
+        noiseTasksAfter.length === TASK_LIMITS.exactNoise &&
+        signalTasksAfter.every((t) => t.isCompleted) &&
+        noiseTasksAfter.every((t) => t.isCompleted);
+
+      // If all tasks complete, archive them and clear the list
+      if (allTasksWillBeComplete) {
+        setArchive((prev) => [...updatedTasks, ...prev]);
+        setTasks([]);
+      } else {
+        // Just update the task
+        setTasks(updatedTasks);
+      }
 
       // Award XP
       const xpGain = task.type === "signal" ? XP_VALUES.signal : XP_VALUES.noise;
