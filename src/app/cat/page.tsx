@@ -38,6 +38,7 @@ export default function CatPage() {
     remainingFeedings,
     canFeedPet,
     allTasksComplete,
+    isPlanningMode,
     feedPet,
     updatePetName,
   } = useStore();
@@ -201,7 +202,7 @@ export default function CatPage() {
 
       {/* Action Buttons */}
       <div className="px-6 py-3 space-y-2">
-        {allTasksComplete && (
+        {(allTasksComplete || isPlanningMode) && (
           <Link
             href="/shop"
             className="block w-full py-3 text-center font-medium text-dust-grey bg-chestnut rounded-lg hover:bg-burnt-rose transition-colors"
